@@ -8,25 +8,25 @@ Todo corre localmente — sin APIs de pago, sin datos enviados a terceros (excep
 
 ## Fases del proyecto
 
-**Fase 1 — Lector RAG** ✅ *completada*
+**Fase 1 — Lector RAG** 
 Sistema de consulta sobre documentos: ingesta de PDFs (OCR incluido), vectorización, búsqueda semántica y respuesta fundamentada en fuentes.
 
-**Fase 2 — Recuperación profunda + Modelo híbrido** ✅ *completada*
+**Fase 2 — Recuperación profunda + Modelo híbrido** 
 MultiQuery: el agente genera 4 versiones de cada pregunta y busca con cada una (hasta 160 chunks únicos vs 6 del RAG básico).
 
 Modelo híbrido para reducir latencia: mistral 7B genera las versiones de búsqueda (tarea simple, modelo rápido) y qwen2.5 14B sintetiza la respuesta final (tarea compleja, modelo profundo). La búsqueda es 2x más rápida sin sacrificar calidad.
 
 Resúmenes de fondo: summarizer.py genera un resumen estructurado de cada texto (tesis, conceptos clave, posición teórica) usando qwen2.5. El chatbot los carga al iniciar y los incluye como conocimiento de fondo junto con los chunks específicos recuperados.
 
-**Fase 3 — Agente socrático con memoria** 📋 *planificada*
+**Fase 3 — Agente socrático con memoria** (en siguiente repositorio)
 El agente lleva el diálogo, recuerda conversaciones anteriores, propone conexiones entre autores y usa el vocabulario conceptual de los textos. Deja de ser reactivo y se convierte en interlocutor.
 
-**Fase 4 — GraphRAG** 📋 *planificada*
+**Fase 4 — GraphRAG** (en siguiente repsitorio)
 Construcción de un mapa de relaciones conceptuales entre todos los textos. El agente entiende que Bourdieu y Geertz abordan el mismo problema desde ángulos distintos sin que el usuario se lo indique.
 
 ---
 
-## Distinción clave: Transformer vs RAG
+## Distinción clave para entender el proyecto: Transformer vs RAG
 
 **Transformer** es la arquitectura matemática interna de los modelos de IA (qwen, mistral, llama, GPT, Claude). Es el "cerebro" — ya viene entrenado con miles de millones de textos. Este proyecto no lo modifica.
 
@@ -37,11 +37,11 @@ Transformer  →  el cerebro de una persona (ya existe, no se toca)
 RAG          →  la biblioteca + el sistema para que el cerebro acceda a ella
 ```
 
-Lo que hace este proyecto: convierte documentos en vectores (embeddings), los organiza en una base de datos vectorial (Qdrant), y construye un pipeline que recupera los fragmentos relevantes y se los pasa al modelo cuando necesita responder.
+Lo que hace este proyecto es conviertir documentos en vectores (embeddings), los organiza en una base de datos vectorial (Qdrant), y construye un pipeline que recupera los fragmentos relevantes y se los pasa al modelo cuando necesita responder.
 
 ---
 
-## Qué hace
+## Qué puede hacer... 
 
 1. Procesa PDFs (digitales y escaneados), TXT y DOCX
 2. Extrae el texto, lo limpia y lo divide en fragmentos de ~800 caracteres
@@ -54,7 +54,6 @@ Lo que hace este proyecto: convierte documentos en vectores (embeddings), los or
 ## Arquitectura
 
 ```
-Tu pregunta
     → nomic-embed-text la convierte en vector
     → Qdrant busca los 4 fragmentos más cercanos semánticamente
     → llama3.2 lee esos fragmentos y genera la respuesta
@@ -72,7 +71,7 @@ Tu pregunta
 
 ---
 
-## Requisitos del sistema
+## Requisitos para correrlo
 
 - Python 3.10+
 - Docker Desktop
@@ -80,7 +79,7 @@ Tu pregunta
 - Tesseract OCR (para PDFs escaneados)
 - Poppler (para convertir páginas PDF a imágenes)
 
-### Instalaciones del sistema (no Python)
+### Instalaciones del sistema dejo links! (no Python)
 
 **Tesseract OCR**
 - Windows: descargar de https://github.com/UB-Mannheim/tesseract/wiki
@@ -238,6 +237,8 @@ Cada traza muestra:
 - El prompt completo enviado a llama3.2
 - La respuesta generada
 - Tiempo de cada paso
+
+- Esto es importante en investigación ya que en estas metricas se aloja una interpretacion implicita de comportamientoo
 
 ---
 
