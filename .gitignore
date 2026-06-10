@@ -1,0 +1,24 @@
+# Claves y configuración sensible
+.env
+
+# Entorno Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Datos personales — no subir al repo
+documentos/
+qdrant_storage/
+procesados.json
+resumenes.json
+
+# Binarios del sistema (cada usuario instala los suyos)
+poppler/
+
+# Notas internas del proyecto
+.claude/
+
+# Archivos temporales
+*.log
+*.tmp
