@@ -18,8 +18,8 @@ Modelo híbrido para reducir latencia: mistral 7B genera las versiones de búsqu
 
 Resúmenes de fondo: summarizer.py genera un resumen estructurado de cada texto (tesis, conceptos clave, posición teórica) usando qwen2.5. El chatbot los carga al iniciar y los incluye como conocimiento de fondo junto con los chunks específicos recuperados.
 
-**Fase 3 — Agente socrático con memoria** (en siguiente repositorio)
-El agente lleva el diálogo, recuerda conversaciones anteriores, propone conexiones entre autores y usa el vocabulario conceptual de los textos. Deja de ser reactivo y se convierte en interlocutor.
+**Fase 3 — Agente socrático con memoria** ✅ *completada*
+El agente lleva el diálogo, recuerda conversaciones anteriores, propone conexiones entre autores y usa el vocabulario conceptual de los textos. Deja de ser reactivo y se convierte en interlocutor. Implementado en `agente.py`.
 
 **Fase 4 — GraphRAG** (en siguiente repsitorio)
 Construcción de un mapa de relaciones conceptuales entre todos los textos. El agente entiende que Bourdieu y Geertz abordan el mismo problema desde ángulos distintos sin que el usuario se lo indique.
@@ -65,7 +65,8 @@ Lo que hace este proyecto es conviertir documentos en vectores (embeddings), los
 | Componente | Rol | Dónde corre |
 |---|---|---|
 | `nomic-embed-text` | Convierte texto en vectores | Ollama (local) |
-| `llama3.2` | Genera las respuestas | Ollama (local) |
+| `mistral` | Genera versiones de búsqueda (MultiQuery) | Ollama (local) |
+| `qwen2.5:14b` | Genera las respuestas y dialoga | Ollama (local) |
 | Qdrant | Base de datos vectorial | Docker (local) |
 | LangSmith | Monitoreo y trazas | Nube (opcional) |
 
@@ -98,7 +99,8 @@ Lo que hace este proyecto es conviertir documentos en vectores (embeddings), los
 - Luego descargar los modelos:
 ```
 ollama pull nomic-embed-text
-ollama pull llama3.2
+ollama pull mistral
+ollama pull qwen2.5:14b
 ```
 
 ---
@@ -204,9 +206,9 @@ python ingest.py
 python chatbot.py
 ```
 
-El chatbot busca los 4 fragmentos más relevantes en Qdrant para cada pregunta y los usa como contexto para que `llama3.2` genere la respuesta. Mantiene historial de conversación para preguntas de seguimiento.
+Usa MultiQuery (4 versiones de cada pregunta) para recuperar hasta 160 fragmentos únicos y los sintetiza con `qwen2.5:14b`. Mantiene historial de conversación para preguntas de seguimiento.
 
-Muestra la fuente (nombre del archivo) de donde provino la información.
+**`agente.py`** es la versión principal: agente socrático con memoria persistente entre sesiones. Escribe `salir` para cerrar — al hacerlo, el agente guarda un resumen de lo discutido para retomarlo en la próxima sesión.
 
 ---
 
@@ -242,9 +244,52 @@ Cada traza muestra:
 
 ---
 
+## Rendimiento y hardware
+
+**Este es el punto más importante antes de usar el proyecto.**
+
+El agente corre modelos de 7B y 14B de parámetros completamente en local. La velocidad depende casi enteramente del hardware disponible.
+
+### Tiempos esperados por hardware
+
+| Hardware | Tiempo por respuesta | Usabilidad |
+|---|---|---|
+| CPU puro (sin GPU) | 3-8 minutos | Inviable para conversación |
+| iGPU integrada (Intel Arc, AMD Radeon integrada) | 35-60 segundos | Usable para consultas puntuales |
+| GPU dedicada gama media (RTX 3060, RX 6700) | 8-15 segundos | Fluido |
+| GPU dedicada gama alta (RTX 4070+, RX 7900) | 3-6 segundos | Muy fluido |
+| Apple Silicon M2/M3 Pro o Max | 5-12 segundos | Muy fluido |
+
+### Cómo activar la GPU
+
+El código ya está preparado para usar GPU. Solo hay que configurar Ollama:
+
+**NVIDIA (CUDA)** — Ollama lo detecta automáticamente. No requiere configuración adicional.
+
+**AMD (ROCm)** — Ollama lo detecta automáticamente en Linux. En Windows puede requerir drivers actualizados.
+
+**Intel Arc (Vulkan)** — Ollama detecta la GPU pero por defecto descarta las iGPUs. Para activarla:
+```powershell
+# Ejecutar en PowerShell como usuario normal (no admin)
+[Environment]::SetEnvironmentVariable("OLLAMA_IGPU_ENABLE", "1", "User")
+[Environment]::SetEnvironmentVariable("OLLAMA_FLASH_ATTENTION", "1", "User")
+# Reiniciar la PC para que Ollama tome los cambios al arrancar
+```
+
+Para verificar que la GPU está siendo usada, revisar el log de Ollama:
+```
+C:\Users\tu_usuario\AppData\Local\Ollama\server.log
+```
+Debe aparecer `msg="inference compute"` con el nombre de tu GPU, sin la palabra `dropping`.
+
+### Por qué la velocidad es central
+
+Este proyecto no es un buscador — es un interlocutor académico. La calidad del diálogo depende de respuestas que lleguen en segundos, no en minutos. Con hardware sin GPU dedicada, el proyecto funciona técnicamente pero la experiencia conversacional se fragmenta.
+
+---
+
 ## Notas
 
 - Los modelos de Ollama se guardan en `C:\Users\tu_usuario\.ollama\models\` — son del sistema, no del proyecto
-- La primera respuesta del chatbot puede tardar 20-60 segundos (llama3.2 en CPU)
-- Con GPU el tiempo de respuesta baja considerablemente
 - Para agregar más documentos: copiar a `documentos/` y volver a correr `ingest.py`
+- `memoria_agente.json` y `resumenes.json` son personales y están excluidos del repositorio — cada usuario genera los suyos
