@@ -322,7 +322,7 @@ def main():
     historial_sesion = []
     filtro_fuente = None
 
-    print("Comandos: /fuente <texto> | /fuente off | /fuentes\n")
+    print("Comandos: /fuente <texto> | /fuente <texto> + <texto> | /fuente off | /fuentes\n")
 
     while True:
         pregunta = input("Vos: ").strip()
@@ -349,8 +349,14 @@ def main():
         if pregunta.lower().startswith("/fuente"):
             partes = pregunta.split(maxsplit=1)
             if len(partes) > 1 and partes[1].lower() != "off":
-                filtro_fuente = partes[1].lower()
-                print(f"  Filtro: '{filtro_fuente}'\n")
+                # Soporta múltiples fuentes separadas por +
+                # Ej: /fuente taussig + simondon
+                terminos = [t.strip().lower() for t in partes[1].split("+") if t.strip()]
+                filtro_fuente = terminos
+                if len(terminos) == 1:
+                    print(f"  Filtro: '{terminos[0]}'\n")
+                else:
+                    print(f"  Filtro multi-fuente: {' + '.join(terminos)}\n")
             else:
                 filtro_fuente = None
                 print("  Filtro desactivado\n")
@@ -359,10 +365,11 @@ def main():
         t_inicio = time.time()
 
         if filtro_fuente:
-            docs = vector_store.similarity_search(
-                pregunta, k=40,
-                filter=Filter(must=[FieldCondition(key="metadata.fuente", match=MatchText(text=filtro_fuente))])
-            )
+            qdrant_filter = Filter(should=[
+                FieldCondition(key="metadata.fuente", match=MatchText(text=t))
+                for t in filtro_fuente
+            ])
+            docs = vector_store.similarity_search(pregunta, k=40, filter=qdrant_filter)
         else:
             docs = buscar_multiquery(retriever, pregunta, llm_rapido)
 

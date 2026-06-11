@@ -210,6 +210,18 @@ Usa MultiQuery (4 versiones de cada pregunta) para recuperar hasta 160 fragmento
 
 **`agente.py`** es la versión principal: agente socrático con memoria persistente entre sesiones. Escribe `salir` para cerrar — al hacerlo, el agente guarda un resumen de lo discutido para retomarlo en la próxima sesión.
 
+### Comandos del agente
+
+| Comando | Efecto |
+|---|---|
+| `/fuentes` | Lista todos los textos disponibles en la biblioteca |
+| `/fuente taussig` | Filtra la búsqueda solo a textos que contengan "taussig" en el nombre |
+| `/fuente taussig + simondon` | Filtra a múltiples textos simultáneamente (OR) |
+| `/fuente off` | Desactiva el filtro, vuelve a buscar en toda la biblioteca |
+| `salir` | Cierra la sesión y guarda la memoria |
+
+**Consejo de uso:** `/fuente` activa el pipeline corto (una búsqueda directa, sin MultiQuery), por lo que es considerablemente más rápido. Usarlo cuando querés explorar un texto específico. Sin filtro, el agente recupera de toda la biblioteca y puede tensionar ideas entre autores.
+
 ---
 
 ## Estructura del proyecto
