@@ -179,6 +179,7 @@ def generar_versiones(pregunta, llm):
     """
     prompt_versiones = f"""Generá 4 versiones distintas de esta pregunta académica para buscar en una biblioteca de ciencias sociales.
 Cada versión debe usar vocabulario diferente pero buscar el mismo tema.
+Respondé SIEMPRE en español, sin importar el idioma de la pregunta original.
 Devolvé SOLO las 4 preguntas, una por línea, sin numeración ni explicaciones.
 
 Pregunta original: {pregunta}"""

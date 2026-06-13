@@ -219,6 +219,7 @@ def generar_versiones(pregunta, llm_rapido):
     """mistral genera 4 reformulaciones de la pregunta para búsqueda amplia."""
     prompt = f"""Generá 4 versiones distintas de esta pregunta para buscar en una biblioteca de ciencias sociales.
 Usá vocabulario diferente en cada versión pero buscá el mismo tema.
+Respondé SIEMPRE en español, sin importar el idioma de la pregunta original.
 Devolvé SOLO las 4 preguntas, una por línea, sin numeración.
 
 Pregunta: {pregunta}"""
