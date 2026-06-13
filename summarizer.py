@@ -43,26 +43,35 @@ def obtener_chunks_por_fuente(cliente, coleccion, fuente):
 
 def generar_resumen(fuente, chunks, llm):
     """
-    Le pide a qwen2.5 que genere un resumen estructurado del texto.
-    El resumen captura: tesis central, conceptos clave, posición del autor
-    y cómo dialoga con otras tradiciones teóricas.
+    Genera un resumen académico estructurado usando método comparativo clásico
+    de la antropología: ficha temática + preguntas problematizadoras +
+    posicionamiento epistemológico + punto de vista decantado.
     """
-    # Tomamos los primeros 30 chunks para no saturar el contexto
-    # Si el libro tiene más, los primeros suelen tener la tesis central
     texto_muestra = "\n\n---\n\n".join(chunks[:30])
 
     prompt = f"""Analizá los siguientes fragmentos del texto "{fuente}" y generá un resumen académico estructurado.
+Usá el método comparativo clásico de la antropología: no solo describí el texto sino que decantá el punto de vista específico que representa este autor en el campo.
 
 FRAGMENTOS:
 {texto_muestra}
 
-Generá un resumen con este formato exacto:
+Generá el resumen con este formato exacto:
 
 AUTOR Y OBRA: [nombre del autor y título inferido]
-TESIS CENTRAL: [la idea principal que defiende el texto, en 2-3 oraciones]
-CONCEPTOS CLAVE: [lista de 5-8 conceptos centrales con una línea de explicación cada uno]
-POSICIÓN TEÓRICA: [en qué tradición se inscribe, con quiénes dialoga o polemiza]
-ARGUMENTO PRINCIPAL: [cómo desarrolla su argumento, en 3-4 oraciones]
+
+TESIS CENTRAL: [la afirmación principal que el texto defiende, en 2-3 oraciones]
+
+CONCEPTOS OPERATIVOS: [5-8 términos técnicos que el autor construye o resignifica, con una línea de explicación cada uno]
+
+ARGUMENTO: [cómo desarrolla y sostiene la tesis paso a paso, en 3-4 oraciones]
+
+POSICIÓN EPISTEMOLÓGICA: [desde qué lugar teórico habla — empirismo, estructuralismo, fenomenología, etc. — y qué supuestos asume sobre el conocimiento]
+
+PREGUNTAS QUE ABRE: [2-4 tensiones, problemas o interrogantes que el texto deja abiertos o sin resolver]
+
+PUNTO DE VISTA DECANTADO: [qué perspectiva específica representa este autor en el debate del campo — qué puede ver desde su posición que otros no ven, y qué queda fuera de su mirada]
+
+DIÁLOGO CON OTROS AUTORES: [con quién conversa explícita o implícitamente, dónde coincide y dónde diverge]
 
 Respondé solo con el resumen, sin comentarios adicionales."""
 
