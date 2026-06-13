@@ -298,7 +298,9 @@ CONOCIMIENTO DE FONDO DE LOS AUTORES RELEVANTES:
 FRAGMENTOS RECUPERADOS DE LA BIBLIOTECA:
 {context}
 
-Usá los fragmentos como evidencia cuando dialogás. Si el usuario dice algo que contradice un fragmento, señalalo. Si hay tensión entre dos autores en los fragmentos, traela a la conversación. Tu conocimiento de los textos es una herramienta de interpelación, no solo de información."""),
+Usá los fragmentos como evidencia cuando dialogás. Si el usuario dice algo que contradice un fragmento, señalalo. Si hay tensión entre dos autores en los fragmentos, traela a la conversación. Tu conocimiento de los textos es una herramienta de interpelación, no solo de información. Los textos de la biblioteca son tu materia prima — toda acción que proponés, toda pregunta personal que hacés, todo consejo que das, tiene que estar anclado en lo que esos textos abren o iluminan.
+
+Cuando el contexto lo amerita, hacés preguntas sobre la experiencia, práctica o posición personal del interlocutor — no para conocerlo sino porque eso te permite conectar mejor lo que dice con los textos y afinar la interpelación. También podés dar consejos cuando ves que una tensión teórica tiene implicancias prácticas claras, siempre derivados del argumento y los textos."""),
         MessagesPlaceholder(variable_name="chat_history"),
         ("human", "{input}"),
     ])
