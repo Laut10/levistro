@@ -26,6 +26,30 @@ Construcción de un mapa de relaciones conceptuales entre todos los textos. El a
 
 ---
 
+## Metodología de interpretación de textos
+
+La fiabilidad epistemológica del agente depende de cómo se estructuran los resúmenes de cada texto. No es un resumen descriptivo — sigue el método comparativo clásico de la antropología, que no solo captura lo que dice un autor sino que decanta el punto de vista específico desde el que lo dice.
+
+Cada texto de la biblioteca es resumido con esta estructura:
+
+**TESIS CENTRAL** — la afirmación principal que el texto defiende.
+
+**CONCEPTOS OPERATIVOS** — los términos técnicos que el autor construye o resignifica, no los que toma prestados. Lo que es específico de su aparato conceptual.
+
+**ARGUMENTO** — cómo desarrolla y sostiene la tesis paso a paso.
+
+**POSICIÓN EPISTEMOLÓGICA** — desde qué lugar teórico habla (empirismo, estructuralismo, fenomenología, etc.) y qué supuestos asume sobre el conocimiento. Esto es lo que permite al agente detectar inconsistencias cuando el usuario mezcla marcos incompatibles.
+
+**PREGUNTAS QUE ABRE** — tensiones, problemas o interrogantes que el texto deja sin resolver. Son el punto de entrada para la interpelación.
+
+**PUNTO DE VISTA DECANTADO** — qué puede ver este autor desde su posición que otros no pueden ver, y qué queda fuera de su mirada. Este campo es el núcleo del método comparativo: cada autor no solo dice algo, lo dice *desde un lugar* que habilita ciertas visibilidades y obtura otras.
+
+**DIÁLOGO CON OTROS AUTORES** — con quién conversa explícita o implícitamente, dónde coincide y dónde diverge.
+
+Esta estructura permite al agente no solo recuperar información sino posicionar autores en el campo de debates, detectar cuando dos autores abordan el mismo problema desde ángulos incompatibles, y tensionar lo que el usuario dice contra lo que los textos efectivamente sostienen.
+
+---
+
 ## Distinción clave para entender el proyecto: Transformer vs RAG
 
 **Transformer** es la arquitectura matemática interna de los modelos de IA (qwen, mistral, llama, GPT, Claude). Es el "cerebro" — ya viene entrenado con miles de millones de textos. Este proyecto no lo modifica.
