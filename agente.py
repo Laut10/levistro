@@ -307,8 +307,8 @@ INSTRUCCIÓN OBLIGATORIA — GRÁFICOS: Cuando el usuario pida un gráfico, esqu
   "titulo": "Título del diagrama",
   "subtitulo": "subtítulo opcional",
   "nodos": [
-    {{"id": "id_unico", "label": "Etiqueta visible", "tipo": "central", "descripcion": "tesis o posición en una oración"}},
-    {{"id": "otro", "label": "Otro concepto", "tipo": "concepto", "descripcion": "qué dice exactamente sobre esto"}}
+    {{"id": "id_unico", "label": "Etiqueta visible", "tipo": "central", "descripcion": "tesis o posición en una oración", "cita": "frase textual del autor si hay una relevante"}},
+    {{"id": "otro", "label": "Otro concepto", "tipo": "concepto", "descripcion": "qué dice exactamente sobre esto", "cita": ""}}
   ],
   "aristas": [
     {{"desde": "id_unico", "hacia": "otro", "label": "relación precisa"}}

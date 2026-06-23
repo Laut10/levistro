@@ -3,200 +3,213 @@
 # LEVISTRO — Exportador de diagramas conceptuales a PDF
 #
 # Lee ultimo_grafico.json generado por el agente y
-# produce un PDF con el diagrama de nodos y relaciones.
+# produce un PDF con jerarquía visual, descripciones
+# y citas opcionales bajo cada nodo.
 #
 # Uso: python generar_pdf.py
 # =====================================================
 
 import json
-import sys
 import os
-import math
 import textwrap
 from pathlib import Path
+from collections import defaultdict
 
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from matplotlib.patches import FancyBboxPatch
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 import networkx as nx
 
 
 COLORES = {
-    "central":       "#FFD166",
-    "concepto":      "#FF8C69",
-    "caracteristica":"#87CEEB",
-    "ejemplo":       "#90EE90",
-    "autor":         "#C9B1FF",
-    "tension":       "#FFB3BA",
-    "pregunta":      "#FFDAC1",
+    "central":        "#FFD166",
+    "autor":          "#C9B1FF",
+    "concepto":       "#FF8C69",
+    "caracteristica": "#87CEEB",
+    "ejemplo":        "#90EE90",
+    "tension":        "#FFB3BA",
+    "pregunta":       "#FFDAC1",
 }
 COLOR_DEFAULT = "#E0E0E0"
 
+# Nivel jerárquico por tipo — determina posición vertical
+NIVELES = {
+    "central":        0,
+    "autor":          1,
+    "concepto":       2,
+    "tension":        2,
+    "pregunta":       2,
+    "caracteristica": 3,
+    "ejemplo":        3,
+}
 
-def envolver_texto(texto, max_chars=22):
-    return "\n".join(textwrap.wrap(texto, max_chars))
+
+def envolver(texto, max_chars=20):
+    if not texto:
+        return ""
+    return "\n".join(textwrap.wrap(str(texto), max_chars))
+
+
+def layout_jerarquico(nodos, aristas):
+    """
+    Posiciona nodos en filas según su tipo/nivel.
+    Dentro de cada fila los distribuye horizontalmente.
+    """
+    niveles = defaultdict(list)
+    for n in nodos:
+        nivel = NIVELES.get(n.get("tipo", "concepto"), 2)
+        niveles[nivel].append(n["id"])
+
+    pos = {}
+    max_nivel = max(niveles.keys()) if niveles else 0
+
+    for nivel, ids in sorted(niveles.items()):
+        y = 1.0 - nivel / (max_nivel + 1)
+        n_ids = len(ids)
+        for i, nid in enumerate(ids):
+            x = (i + 1) / (n_ids + 1)
+            pos[nid] = (x, y)
+
+    return pos
 
 
 def dibujar_grafico(datos, output_path="diagrama_conceptual.pdf"):
-    nodos = datos.get("nodos", [])
+    nodos  = datos.get("nodos", [])
     aristas = datos.get("aristas", [])
-    titulo = datos.get("titulo", "Diagrama Conceptual")
+    titulo  = datos.get("titulo", "Diagrama Conceptual")
     subtitulo = datos.get("subtitulo", "")
 
-    G = nx.DiGraph()
-    nodo_map = {}
-    for n in nodos:
-        G.add_node(n["id"])
-        nodo_map[n["id"]] = n
+    nodo_map = {n["id"]: n for n in nodos}
+    pos = layout_jerarquico(nodos, aristas)
 
-    for a in aristas:
-        G.add_edge(a["desde"], a["hacia"], label=a.get("label", ""))
-
-    fig, ax = plt.subplots(figsize=(18, 13))
-    ax.set_facecolor("#F8F8F8")
-    fig.patch.set_facecolor("#F8F8F8")
+    # Calcular alto de figura según contenido
+    fig_h = max(14, len(nodos) * 1.2)
+    fig, ax = plt.subplots(figsize=(20, fig_h))
+    ax.set_facecolor("#F5F5F0")
+    fig.patch.set_facecolor("#F5F5F0")
     ax.axis("off")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(-0.05, 1.05)
 
-    # Layout — jerarquico si hay nodo central, spring si no
-    central = next((n["id"] for n in nodos if n.get("tipo") == "central"), None)
-    try:
-        if central and len(G.nodes) > 1:
-            pos = nx.spring_layout(G, seed=42, k=2.5, center=(0.5, 0.5))
-        else:
-            pos = nx.spring_layout(G, seed=42, k=2.0)
-    except Exception:
-        pos = {n: (i * 0.3, 0) for i, n in enumerate(G.nodes())}
-
-    # Escalar posiciones al espacio del eje
-    xs = [p[0] for p in pos.values()]
-    ys = [p[1] for p in pos.values()]
-    x_min, x_max = min(xs), max(xs)
-    y_min, y_max = min(ys), max(ys)
-    margin = 0.15
-
-    def escalar(x, y):
-        rx = (x - x_min) / (x_max - x_min + 1e-9)
-        ry = (y - y_min) / (y_max - y_min + 1e-9)
-        return margin + rx * (1 - 2*margin), margin + ry * (1 - 2*margin)
-
-    pos_scaled = {n: escalar(*p) for n, p in pos.items()}
-
-    # Dibujar aristas primero
-    for u, v, data in G.edges(data=True):
-        x1, y1 = pos_scaled[u]
-        x2, y2 = pos_scaled[v]
-        dx, dy = x2 - x1, y2 - y1
-        dist = math.sqrt(dx**2 + dy**2)
-
+    # ── Aristas ──────────────────────────────────────────
+    for a in aristas:
+        if a["desde"] not in pos or a["hacia"] not in pos:
+            continue
+        x1, y1 = pos[a["desde"]]
+        x2, y2 = pos[a["hacia"]]
         ax.annotate(
             "", xy=(x2, y2), xytext=(x1, y1),
-            xycoords="axes fraction", textcoords="axes fraction",
+            xycoords="data", textcoords="data",
             arrowprops=dict(
                 arrowstyle="-|>",
-                color="#555555",
-                lw=1.8,
-                mutation_scale=18,
-                connectionstyle="arc3,rad=0.12",
+                color="#666666", lw=1.6,
+                mutation_scale=16,
+                connectionstyle="arc3,rad=0.08",
             ),
             zorder=2,
         )
-        # Etiqueta de arista
-        etiqueta = data.get("label", "")
+        etiqueta = a.get("label", "")
         if etiqueta:
-            mx = (x1 + x2) / 2 + dy * 0.04
-            my = (y1 + y2) / 2 - dx * 0.04
+            mx = (x1 + x2) / 2
+            my = (y1 + y2) / 2
             ax.text(
                 mx, my, etiqueta,
-                transform=ax.transAxes,
-                fontsize=7.5, ha="center", va="center",
-                style="italic", color="#333333",
-                bbox=dict(boxstyle="round,pad=0.15", facecolor="white",
-                          edgecolor="#CCCCCC", alpha=0.9),
+                ha="center", va="center",
+                fontsize=7, style="italic", color="#444444",
+                bbox=dict(boxstyle="round,pad=0.15",
+                          facecolor="white", edgecolor="#CCCCCC", alpha=0.85),
                 zorder=5,
             )
 
-    # Dibujar nodos
-    BOX_W = 0.13
-    BOX_H = 0.08
+    # ── Nodos ────────────────────────────────────────────
+    for nid, (x, y) in pos.items():
+        nodo   = nodo_map.get(nid, {})
+        tipo   = nodo.get("tipo", "concepto")
+        color  = COLORES.get(tipo, COLOR_DEFAULT)
+        label  = nodo.get("label", nid)
+        desc   = nodo.get("descripcion", "")
+        cita   = nodo.get("cita", "")
+        central = tipo == "central"
 
-    for nodo_id, (x, y) in pos_scaled.items():
-        nodo = nodo_map.get(nodo_id, {})
-        tipo = nodo.get("tipo", "concepto")
-        color = COLORES.get(tipo, COLOR_DEFAULT)
-        label = nodo.get("label", nodo_id)
-        es_central = tipo == "central"
+        label_wrap = envolver(label, 18 if central else 20)
+        n_label_lines = label_wrap.count("\n") + 1
 
-        w = BOX_W * (1.5 if es_central else 1.0)
-        h = BOX_H * (1.3 if es_central else 1.0)
+        BOX_W = 0.14 if central else 0.12
+        BOX_H = 0.045 + 0.018 * n_label_lines
 
+        # Caja del nodo
         box = FancyBboxPatch(
-            (x - w/2, y - h/2), w, h,
-            boxstyle="round,pad=0.015",
-            transform=ax.transAxes,
+            (x - BOX_W/2, y - BOX_H/2), BOX_W, BOX_H,
+            boxstyle="round,pad=0.012",
             facecolor=color,
-            edgecolor="#222222" if es_central else "#555555",
-            linewidth=2.5 if es_central else 1.5,
+            edgecolor="#222222" if central else "#555555",
+            linewidth=2.5 if central else 1.5,
             zorder=3,
         )
         ax.add_patch(box)
 
-        texto = envolver_texto(label, max_chars=18 if es_central else 20)
+        # Texto del label dentro del nodo
         ax.text(
-            x, y, texto,
-            transform=ax.transAxes,
+            x, y, label_wrap,
             ha="center", va="center",
-            fontsize=9 if es_central else 8,
-            fontweight="bold" if es_central else "normal",
+            fontsize=10 if central else 8.5,
+            fontweight="bold" if central else "semibold",
             color="#111111",
             zorder=4,
         )
 
-        # Descripción opcional debajo del nodo
-        desc = nodo.get("descripcion", "")
+        # Descripción bajo el nodo
+        y_offset = y - BOX_H/2 - 0.012
         if desc:
-            desc_wrap = envolver_texto(desc, max_chars=28)
+            desc_wrap = envolver(desc, 30)
             ax.text(
-                x, y - h/2 - 0.025, desc_wrap,
-                transform=ax.transAxes,
+                x, y_offset, desc_wrap,
                 ha="center", va="top",
-                fontsize=6.5, color="#444444",
+                fontsize=7, color="#333333",
+                zorder=4,
+            )
+            y_offset -= 0.012 * (desc_wrap.count("\n") + 2)
+
+        # Cita bajo la descripción
+        if cita:
+            cita_wrap = envolver(f'"{cita}"', 34)
+            ax.text(
+                x, y_offset, cita_wrap,
+                ha="center", va="top",
+                fontsize=6.5, color="#666666", style="italic",
                 zorder=4,
             )
 
-    # Título
-    y_titulo = 0.97
+    # ── Título ───────────────────────────────────────────
     ax.text(
-        0.5, y_titulo, titulo,
-        transform=ax.transAxes,
-        ha="center", va="top",
-        fontsize=16, fontweight="bold", color="#111111",
+        0.5, 1.03, titulo,
+        ha="center", va="bottom",
+        fontsize=17, fontweight="bold", color="#111111",
+        transform=ax.transData,
     )
     if subtitulo:
         ax.text(
-            0.5, y_titulo - 0.04, subtitulo,
-            transform=ax.transAxes,
-            ha="center", va="top",
+            0.5, 1.005, subtitulo,
+            ha="center", va="bottom",
             fontsize=10, color="#555555", style="italic",
+            transform=ax.transData,
         )
 
-    # Leyenda de colores
+    # ── Leyenda ──────────────────────────────────────────
+    presentes = {n.get("tipo", "concepto") for n in nodos}
     leyenda = [
         mpatches.Patch(color=c, label=t.capitalize())
-        for t, c in COLORES.items()
-        if any(n.get("tipo") == t for n in nodos)
+        for t, c in COLORES.items() if t in presentes
     ]
     if leyenda:
         ax.legend(
-            handles=leyenda,
-            loc="lower right",
-            bbox_to_anchor=(1.0, 0.0),
-            fontsize=8,
-            framealpha=0.9,
+            handles=leyenda, loc="lower right",
+            fontsize=8, framealpha=0.9,
         )
 
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.tight_layout()
     plt.savefig(output_path, format="pdf", bbox_inches="tight", dpi=150)
     plt.close()
     print(f"  PDF generado: {output_path}")
@@ -213,7 +226,7 @@ def main():
     carpeta = Path("diagramas")
     carpeta.mkdir(exist_ok=True)
 
-    nombre = datos.get("titulo", "diagrama").replace(" ", "_")[:40]
+    nombre = datos.get("titulo", "diagrama").replace(" ", "_")[:50]
     output = carpeta / f"{nombre}.pdf"
 
     print(f"\nGenerando PDF: {output}")
@@ -226,7 +239,7 @@ def main():
     root.withdraw()
     abrir = messagebox.askyesno(
         "Diagrama listo",
-        f"✓ PDF generado:\n{output.name}\n\n¿Abrirlo ahora?"
+        f"PDF generado:\n{output.name}\n\n¿Abrirlo ahora?"
     )
     root.destroy()
     if abrir:
