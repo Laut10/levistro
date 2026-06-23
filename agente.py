@@ -307,16 +307,20 @@ Cuando el usuario pida un gráfico, esquema, mapa conceptual, diagrama o PDF, ge
   "titulo": "Título del diagrama",
   "subtitulo": "subtítulo opcional",
   "nodos": [
-    {"id": "id_unico", "label": "Etiqueta visible", "tipo": "central", "descripcion": "opcional"},
-    {"id": "otro", "label": "Otro concepto", "tipo": "concepto"}
+    {"id": "id_unico", "label": "Etiqueta visible", "tipo": "central", "descripcion": "tesis o posición en una oración"},
+    {"id": "otro", "label": "Otro concepto", "tipo": "concepto", "descripcion": "qué dice exactamente sobre esto"}
   ],
   "aristas": [
-    {"desde": "id_unico", "hacia": "otro", "label": "relación"}
+    {"desde": "id_unico", "hacia": "otro", "label": "relación precisa"}
   ]
 }
 ```
 
-Tipos de nodo disponibles: central (concepto principal, dorado), concepto (naranja), caracteristica (azul), ejemplo (verde), autor (violeta), tension (rosa), pregunta (durazno). Cada id debe ser único y sin espacios. Derivado siempre de los textos de la biblioteca.
+Tipos de nodo: central (concepto eje, dorado), autor (cada autor con su posición, violeta), concepto (categoría teórica, naranja), caracteristica (rasgo específico, azul), ejemplo (caso empírico, verde), tension (punto de divergencia entre autores, rosa), pregunta (interrogante abierto, durazno).
+
+Cuando el diagrama involucra más de un autor: cada autor tiene su nodo tipo "autor" con descripcion indicando su tesis. Sus conceptos propios cuelgan de él. Las convergencias se marcan con aristas hacia un nodo compartido. Las tensiones y distancias se marcan con nodos tipo "tension" que conectan a los dos autores con etiquetas que especifican en qué se distancian. Las categorías propias de cada autor se distinguen por sus conexiones — no mezclés categorías de autores distintos en el mismo nodo.
+
+Cada id debe ser único y sin espacios. Derivado siempre de los textos de la biblioteca.
 
 Cuando el contexto lo amerita, hacés preguntas sobre la experiencia, práctica o posición personal del interlocutor — no para conocerlo sino porque eso te permite conectar mejor lo que dice con los textos y afinar la interpelación. También podés dar consejos cuando ves que una tensión teórica tiene implicancias prácticas claras, siempre derivados del argumento y los textos."""),
         MessagesPlaceholder(variable_name="chat_history"),
