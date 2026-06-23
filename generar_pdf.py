@@ -219,8 +219,18 @@ def main():
     print(f"\nGenerando PDF: {output}")
     dibujar_grafico(datos, str(output))
 
-    # Abrir el PDF automáticamente
-    os.startfile(str(output))
+    # Popup con opción de abrir
+    import tkinter as tk
+    from tkinter import messagebox
+    root = tk.Tk()
+    root.withdraw()
+    abrir = messagebox.askyesno(
+        "Diagrama listo",
+        f"✓ PDF generado:\n{output.name}\n\n¿Abrirlo ahora?"
+    )
+    root.destroy()
+    if abrir:
+        os.startfile(str(output))
 
 
 if __name__ == "__main__":
