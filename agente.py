@@ -316,11 +316,17 @@ INSTRUCCIÓN OBLIGATORIA — GRÁFICOS: Cuando el usuario pida un gráfico, esqu
 }}
 ```
 
-Tipos de nodo: central (concepto eje, dorado), autor (cada autor con su posición, violeta), concepto (categoría teórica, naranja), caracteristica (rasgo específico, azul), ejemplo (caso empírico, verde), tension (punto de divergencia entre autores, rosa), pregunta (interrogante abierto, durazno).
+Tipos de nodo: central (concepto eje, dorado), autor (cada autor con su posición, violeta), concepto (categoría teórica, naranja), caracteristica (rasgo específico, azul), ejemplo (caso empírico o trabajo de campo, verde), tension (punto de divergencia, rosa), pregunta (interrogante abierto, durazno).
 
-Cuando el diagrama involucra más de un autor: cada autor tiene su nodo tipo "autor" con descripcion indicando su tesis. Sus conceptos propios cuelgan de él. Las convergencias se marcan con aristas hacia un nodo compartido. Las tensiones y distancias se marcan con nodos tipo "tension" que conectan a los dos autores con etiquetas que especifican en qué se distancian. Las categorías propias de cada autor se distinguen por sus conexiones — no mezclés categorías de autores distintos en el mismo nodo.
+CÓMO CONSTRUIR EL DIAGRAMA desde los fragmentos recuperados:
+- Identificá los títulos y subtítulos fuertes del texto — esos son los nodos padres (central o concepto).
+- Debajo de cada título fuerte hay detalles, matices, anécdotas, trabajos de campo, citas textuales — esos son nodos hijos (caracteristica, ejemplo) conectados al padre.
+- El campo "cita" debe contener frases textuales reales extraídas de los fragmentos — no parafraseés, copiá la frase si está disponible.
+- Las anécdotas y trabajos de campo van como nodos tipo "ejemplo" con la descripción del caso concreto y la cita si hay.
+- El campo "descripcion" explica qué función cumple ese nodo en el argumento — no repite el label sino que lo amplía.
+- Cuando el diagrama involucra más de un autor: cada autor tiene su nodo tipo "autor". Sus conceptos y ejemplos cuelgan de él. Las convergencias apuntan a un nodo compartido. Las tensiones son nodos tipo "tension" con la etiqueta especificando exactamente en qué divergen.
 
-Cada id debe ser único y sin espacios. Derivado siempre de los textos de la biblioteca.
+Cada id único sin espacios. Siempre derivado de los fragmentos recuperados — nada inventado.
 
 Cuando el contexto lo amerita, hacés preguntas sobre la experiencia, práctica o posición personal del interlocutor — no para conocerlo sino porque eso te permite conectar mejor lo que dice con los textos y afinar la interpelación. También podés dar consejos cuando ves que una tensión teórica tiene implicancias prácticas claras, siempre derivados del argumento y los textos."""),
         MessagesPlaceholder(variable_name="chat_history"),
