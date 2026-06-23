@@ -10,6 +10,7 @@ __pycache__/
 # Datos personales — no subir al repo
 documentos/
 qdrant_storage/
+lightrag_storage/
 procesados.json
 resumenes.json
 
