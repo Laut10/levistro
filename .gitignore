@@ -11,6 +11,7 @@ __pycache__/
 documentos/
 qdrant_storage/
 lightrag_storage/
+diagramas/
 procesados.json
 resumenes.json
 

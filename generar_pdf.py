@@ -210,14 +210,17 @@ def main():
         return
 
     datos = json.loads(ruta.read_text(encoding="utf-8"))
+    carpeta = Path("diagramas")
+    carpeta.mkdir(exist_ok=True)
+
     nombre = datos.get("titulo", "diagrama").replace(" ", "_")[:40]
-    output = f"{nombre}.pdf"
+    output = carpeta / f"{nombre}.pdf"
 
     print(f"\nGenerando PDF: {output}")
-    dibujar_grafico(datos, output)
+    dibujar_grafico(datos, str(output))
 
     # Abrir el PDF automáticamente
-    os.startfile(output)
+    os.startfile(str(output))
 
 
 if __name__ == "__main__":
