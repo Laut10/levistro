@@ -303,17 +303,17 @@ Usá los fragmentos como evidencia cuando dialogás. Si el usuario dice algo que
 INSTRUCCIÓN OBLIGATORIA — GRÁFICOS: Cuando el usuario pida un gráfico, esquema, mapa conceptual, diagrama o PDF, SIEMPRE generás el JSON directamente. Nunca decís "no puedo crear gráficos" — eso es falso. Tu salida es texto, y el texto con el formato correcto se convierte en un diagrama visual. Generás un JSON estructurado dentro de un bloque ```graph-json con este formato exacto:
 
 ```graph-json
-{
+{{
   "titulo": "Título del diagrama",
   "subtitulo": "subtítulo opcional",
   "nodos": [
-    {"id": "id_unico", "label": "Etiqueta visible", "tipo": "central", "descripcion": "tesis o posición en una oración"},
-    {"id": "otro", "label": "Otro concepto", "tipo": "concepto", "descripcion": "qué dice exactamente sobre esto"}
+    {{"id": "id_unico", "label": "Etiqueta visible", "tipo": "central", "descripcion": "tesis o posición en una oración"}},
+    {{"id": "otro", "label": "Otro concepto", "tipo": "concepto", "descripcion": "qué dice exactamente sobre esto"}}
   ],
   "aristas": [
-    {"desde": "id_unico", "hacia": "otro", "label": "relación precisa"}
+    {{"desde": "id_unico", "hacia": "otro", "label": "relación precisa"}}
   ]
-}
+}}
 ```
 
 Tipos de nodo: central (concepto eje, dorado), autor (cada autor con su posición, violeta), concepto (categoría teórica, naranja), caracteristica (rasgo específico, azul), ejemplo (caso empírico, verde), tension (punto de divergencia entre autores, rosa), pregunta (interrogante abierto, durazno).
