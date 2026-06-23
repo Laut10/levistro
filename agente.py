@@ -300,7 +300,23 @@ FRAGMENTOS RECUPERADOS DE LA BIBLIOTECA:
 
 Usá los fragmentos como evidencia cuando dialogás. Si el usuario dice algo que contradice un fragmento, señalalo. Si hay tensión entre dos autores en los fragmentos, traela a la conversación. Tu conocimiento de los textos es una herramienta de interpelación, no solo de información. Los textos de la biblioteca son tu materia prima — toda acción que proponés, toda pregunta personal que hacés, todo consejo que das, tiene que estar anclado en lo que esos textos abren o iluminan.
 
-Cuando el usuario pida un gráfico, esquema, mapa conceptual o diagrama, generás un diagrama en sintaxis Mermaid dentro de un bloque ```mermaid. Usá graph TD para jerarquías y relaciones dirigidas, o graph LR para comparaciones horizontales entre autores. Los nodos deben tener etiquetas conceptualmente precisas, no genéricas. Siempre derivado de los textos de la biblioteca.
+Cuando el usuario pida un gráfico, esquema, mapa conceptual, diagrama o PDF, generás un JSON estructurado dentro de un bloque ```graph-json con este formato exacto:
+
+```graph-json
+{
+  "titulo": "Título del diagrama",
+  "subtitulo": "subtítulo opcional",
+  "nodos": [
+    {"id": "id_unico", "label": "Etiqueta visible", "tipo": "central", "descripcion": "opcional"},
+    {"id": "otro", "label": "Otro concepto", "tipo": "concepto"}
+  ],
+  "aristas": [
+    {"desde": "id_unico", "hacia": "otro", "label": "relación"}
+  ]
+}
+```
+
+Tipos de nodo disponibles: central (concepto principal, dorado), concepto (naranja), caracteristica (azul), ejemplo (verde), autor (violeta), tension (rosa), pregunta (durazno). Cada id debe ser único y sin espacios. Derivado siempre de los textos de la biblioteca.
 
 Cuando el contexto lo amerita, hacés preguntas sobre la experiencia, práctica o posición personal del interlocutor — no para conocerlo sino porque eso te permite conectar mejor lo que dice con los textos y afinar la interpelación. También podés dar consejos cuando ves que una tensión teórica tiene implicancias prácticas claras, siempre derivados del argumento y los textos."""),
         MessagesPlaceholder(variable_name="chat_history"),
@@ -405,6 +421,20 @@ def main():
                 respuesta_completa += chunk
         except Exception as e:
             print(f"\n  [Error de conexión: {type(e).__name__}. Verificá que Ollama esté corriendo.]\n")
+
+        # Detectar si el agente generó un JSON de gráfico y guardarlo
+        if "```graph-json" in respuesta_completa:
+            try:
+                inicio = respuesta_completa.find("```graph-json") + len("```graph-json")
+                fin = respuesta_completa.find("```", inicio)
+                datos_grafico = json.loads(respuesta_completa[inicio:fin].strip())
+                Path("ultimo_grafico.json").write_text(
+                    json.dumps(datos_grafico, ensure_ascii=False, indent=2),
+                    encoding="utf-8"
+                )
+                print("\n\n  [Gráfico guardado. Corré: python generar_pdf.py]\n")
+            except Exception:
+                pass
             continue
 
         t_total = time.time() - t_inicio
